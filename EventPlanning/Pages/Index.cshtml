@@ -1,0 +1,13 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="row">
+    <form method="post" class="mt-3">
+        <div class="col-lg-12 col-md-4 mb-2">
+            <partial name="_HomePartial" for="@Model.Home" view-data="ViewData" />
+        </div>
+    </form>
+</div>

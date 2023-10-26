@@ -1,0 +1,33 @@
+﻿@model EventPlanning.Model.Home
+
+@if (Model != null)
+{
+    <div class="heading">
+        <h3>@Model.Name <a href="/Event/0" class="btn btn-success">Добавить</a> </h3>        
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Дата События</th>
+                    <th scope="col">Событие</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var evnt in @Model.Events)
+                {
+                    <tr>
+                        <input type="hidden" asp-for="@evnt.Id" />
+                        <td><label>@evnt.DateTime.ToShortDateString()</label> </td>
+                        <td>@evnt.Name</td>
+                        <td>
+                            <a href="/Event/@evnt.Id" class="btn btn-success">...</a>
+                            <a href="/?delEvent=@evnt.Id" class="btn btn-danger">-</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,90 @@
+﻿@model EventPlanning.Model.Event
+
+<div class="row">
+    <input type="hidden" asp-for="@Model.Edit" />
+    <input type="hidden" asp-for="@Model.Id" />
+    <div class="heading">
+        @if (Model.Edit)
+        {
+            <input asp-for="@Model.Name" />
+            <input asp-for="@Model.DateTime" asp-format="{0:yyyy-MM-ddTHH}" />
+            <input asp-for="@Model.Description" />
+        }
+        else
+        {
+            <input type="hidden" asp-for="@Model.Name" />
+            <input type="hidden" asp-for="@Model.Description" />
+            <input type="hidden" asp-for="@Model.DateTime" />
+            <h3>
+                @Model!.Name <button type="submit" class="btn btn-primary">Сохранить</button> 
+                <a href="/Event/@Model.Id/?addNomencl=true" class="btn btn-success">+</a>
+                
+            </h3>
+            
+            <h4> Дата события: @Model.DateTime.ToShortDateString()</h4>
+        }
+        
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Наименование</th>
+                    <th scope="col">Ссылка</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+         
+                @for (int i = 0; i < Model.Nomenclatures.Count(); i++)
+                {
+                    <input type="hidden" asp-for="@Model.Nomenclatures[i].Id" />
+                    <tr>
+                        <th scope="row"></th>
+                        <td>@if (@Model.Nomenclatures[i].Edit)
+                            {
+                                <input asp-for="@Model.Nomenclatures[i].Name" />
+                            }
+                            else
+                            {
+                                <input type="hidden" asp-for="@Model.Nomenclatures[i].Name" />
+                                @Model.Nomenclatures[i].Name;
+                            }
+                        </td>
+                        <td></td>
+                        <td>
+                            @if (!Model.Nomenclatures[i].Edit)
+                            {
+                                <a href="/Event/@Model.Id/?urlNomencl=@Model.Nomenclatures[i].Id" class="btn btn-primary">+url</a>
+                                <a href="/Event/@Model.Id/?editNomencl=@Model.Nomenclatures[i].Id" class="btn btn-success">...</a>
+                                <a href="/Event/@Model.Id/?delNomencl=@Model.Nomenclatures[i].Id" class="btn btn-danger">-</a>
+                            }
+                        </td>
+                    </tr>
+                    @for (int j = 0; j < Model.Nomenclatures[i].Links.Count(); j++)
+                    {
+                        <input type="hidden" asp-for="@Model.Nomenclatures[i].Links[j]!.Id" />
+                        <tr>
+                            <th scope="row"></th>
+                            <td>===>></td>
+                            <td>@if (Model.Nomenclatures[i].Links[j].Edit)
+                                {
+                                    <input asp-for="@Model.Nomenclatures[i].Links[j]!.Link" />
+                                }
+                                else
+                                {
+                                    <input type="hidden" asp-for="@Model.Nomenclatures[i].Links[j]!.Link" />
+                                    <a href="@Model.Nomenclatures[i].Links[j].Link" target="_blank">@Model.Nomenclatures[i].Links[j].Name</a>
+                                }
+                            </td>
+                            <td>
+                                <a href="/Event/@Model.Id/?delLink=@Model.Nomenclatures[i].Links[j].Id" class="btn btn-danger">-</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
