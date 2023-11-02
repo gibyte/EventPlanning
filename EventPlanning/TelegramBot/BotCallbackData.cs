@@ -4,5 +4,6 @@
     {
         public int NomId { get; set; }
         public int LinkId { get; set; }
+        public bool View { get; set; }
     }
 }

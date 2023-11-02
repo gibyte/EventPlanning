@@ -131,7 +131,7 @@ namespace EventPlanning.Control
 
         public Nomenclature? GetNomenclature(int id)
         {
-            Nomenclature? nom = _context.Nomenclatures.Where(n => n.Id == id).FirstOrDefault();
+            Nomenclature? nom = _context.Nomenclatures.Where(n => n.Id == id).Include( n => n.Links ).FirstOrDefault();
             return nom;
         }
 

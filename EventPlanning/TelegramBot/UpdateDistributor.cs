@@ -1,7 +1,9 @@
 ﻿using EventPlanning.Control;
+using EventPlanning.Model;
 using Newtonsoft.Json;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EventPlanning.TelegramBot
 {
@@ -36,10 +38,11 @@ namespace EventPlanning.TelegramBot
                 {
                     long chatId = update.CallbackQuery.From.Id;
                     BotCallbackData? botCallbackData = JsonConvert.DeserializeObject<BotCallbackData>(data);
-                    if (botCallbackData != null)
+                    if (botCallbackData == null) return;
+                    var nom = db.GetNomenclature(botCallbackData.NomId);
+                    if (nom != null)
                     {
-                        var nom = db.GetNomenclature(botCallbackData.NomId);
-                        if (nom != null && botCallbackData.LinkId != 0)
+                        if (botCallbackData.LinkId != 0)
                         {
                             var link = db.GetLink(botCallbackData.LinkId);
                             nom.Links.Add(link);
@@ -47,11 +50,41 @@ namespace EventPlanning.TelegramBot
                             var text = "Ссылка добавлена";
                             await Client.SendTextMessageAsync(chatId, text);
                         };
+                        if (botCallbackData.View)
+                        {
+                            var textEvnt = "Ссылки:";
+                            var listButton = new List<List<InlineKeyboardButton>>();
+                            var list = new List<InlineKeyboardButton>();
+                            foreach (var eObj in nom.Links)
+                            {
+                                var link = (NomenclatureLink)eObj;
+                                if (link == null) continue;
+                                var button = new InlineKeyboardButton(link.Name)
+                                {
+                                    Url = link.Link
+                                };
+                                list.Add(button);
+                            }; 
+                            listButton.Add(list);
+                            var inline = new InlineKeyboardMarkup(listButton);
+                            try
+                            {
+                                await Client.SendTextMessageAsync(chatId, textEvnt, replyMarkup: inline);
+                            }
+                            catch (Exception e)
+                            {
+                                await Client.SendTextMessageAsync(chatId, e.Message.ToString());
+                            }
+
+                        }
+                        
                     }
+
+                }
                 }
             }
 
         }
     }
-}
+
 

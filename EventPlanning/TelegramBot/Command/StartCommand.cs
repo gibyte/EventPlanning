@@ -1,4 +1,6 @@
 ﻿using EventPlanning.Control;
+using EventPlanning.Model;
+using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
@@ -20,19 +22,39 @@ namespace EventPlanning.TelegramBot.Command
             var usrName = update.Message.From.Username;
             string text = "Привет! ";
             await Client.SendTextMessageAsync(chatId, text + usrName + "!");
-            
-            //await Client.SendTextMessageAsync(chatId, "Привет! " + usrName + "!");
-            // кнопки пример
-            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+
+            var evnts = db.GetEvents("");
+            //var dbLink = db.AddLink(update.Message.Text);
+            foreach (var eObj in evnts)
             {
-                InlineKeyboardButton.WithUrl("Go url 1", "https://www.google.com/"),
-                InlineKeyboardButton.WithUrl("Go url 2", "https://root:7043")
-            });
-            /*Message message = await Client.SendTextMessageAsync(
-                    chatId,
-                    text,
-                    replyMarkup: inlineKeyboard,
-                    parseMode: ParseMode.Markdown);*/
+                var evnt = (Event)eObj;
+                if (evnt == null || evnt.Nomenclatures.Count == 0) continue;
+                var textEvnt = evnt.Name;
+                var listButton = new List<List<InlineKeyboardButton>>();
+                var list = new List<InlineKeyboardButton>();
+                foreach (var nom in evnt.Nomenclatures)
+                {
+                    string textEvn = "==> " + nom.Name;
+                    BotCallbackData botCallbackData = new BotCallbackData() { NomId = nom.Id, View = true, };
+                    string json = JsonConvert.SerializeObject(botCallbackData, Formatting.Indented, new JsonSerializerSettings());
+                    var button = new InlineKeyboardButton(nom.Name)
+                    {
+                        CallbackData = json,
+                    };
+                    list.Add(button);
+                }
+                listButton.Add(list);
+                var inline = new InlineKeyboardMarkup(listButton);
+                try
+                {
+                    await Client.SendTextMessageAsync(chatId, textEvnt, replyMarkup: inline);
+                }
+                catch (Exception e)
+                {
+                    await Client.SendTextMessageAsync(chatId, e.Message.ToString());
+                }
+
+            }
 
         }
     }
